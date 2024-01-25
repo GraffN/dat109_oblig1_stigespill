@@ -14,11 +14,13 @@ public enum PawnColor {
     public static String getColor(PawnColor pawnColor) {
         return switch (pawnColor) {
             case RED -> "#ff0000";
+            case GREEN -> "#00ff00";
+            case BLUE -> "#0000ff";
+            case CYAN -> "#00ffff";
+            case MAGENTA -> "#ff00ff";
+            case YELLOW -> "#ffff00"
             case BLACK -> "#000000";
             case WHITE -> "#ffffff";
-            case YELLOW -> "#00ffff";
-            case BLUE -> "#0000ff";
-            case GREEN -> "#00ff00";
         };
     }
     public static PawnColor get(int id) {
