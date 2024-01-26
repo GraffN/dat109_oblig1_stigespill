@@ -7,18 +7,14 @@ import java.util.ArrayList;
 public class Tile {
     private static int nextId = 0;
     private final int id;
-    private int index;
-    private ArrayList<Player> playersOnTile;
+    private final int index;
+    private ArrayList<Pawn> pawnsOnTile;
     private TileItem tileItem;
 
-    public Tile() {
+    public Tile(final int index) {
         this.id = nextId;
-        nextId++;
-    }
-
-    public Tile(int index) {
-        this();
         this.index = index;
+        nextId++;
     }
 
     public int getId() {
@@ -29,19 +25,35 @@ public class Tile {
         return this.index;
     }
 
-    public ArrayList<Player> getPlayersOnTile() {
-        return this.playersOnTile;
+    public ArrayList<Pawn> getPawnsOnTile() {
+        return this.pawnsOnTile;
     }
 
-    public void setPlayersOnTile(ArrayList<Player> playersOnTile) {
-        this.playersOnTile = playersOnTile;
+    public void setPawnsOnTile(final ArrayList<Pawn> pawnsOnTile) {
+        this.pawnsOnTile = pawnsOnTile;
+    }
+    public boolean removePawnFromTile(final Pawn pawn) {
+        return this.pawnsOnTile.remove(pawn);
+    }
+    public boolean addPawnToTile(final Pawn pawn) {
+        pawn.place(this);
+        return this.pawnsOnTile.add(pawn);
+    }
+
+    public void onPlace(final Pawn pawn) {
+        Tile end = this.tileItem.getEndTile();
+        if (end == null) {
+            return;
+        }
+
+        pawn.place(end);
     }
 
     public TileItem getTileItem() {
         return tileItem;
     }
 
-    public void setTileItem(TileItem tileItem) {
+    public void setTileItem(final TileItem tileItem) {
         this.tileItem = tileItem;
     }
 

@@ -13,7 +13,7 @@ public class Ladder implements TileItem {
         nextId++;
     }
 
-    public Ladder(Tile originTile, Tile endTile) {
+    public Ladder(final Tile originTile, final Tile endTile) {
         this();
         this.originTile = originTile;
         this.endTile = endTile;
@@ -31,7 +31,7 @@ public class Ladder implements TileItem {
         return this.originTile;
     }
 
-    public void setOriginTile(Tile originTile) {
+    public void setOriginTile(final Tile originTile) {
         this.originTile = originTile;
     }
 
@@ -39,7 +39,7 @@ public class Ladder implements TileItem {
         return this.endTile;
     }
 
-    public void setEndTile(Tile endTile) {
+    public void setEndTile(final Tile endTile) {
         this.endTile = endTile;
     }
 }
