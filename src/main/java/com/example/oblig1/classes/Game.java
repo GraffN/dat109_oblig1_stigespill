@@ -67,7 +67,7 @@ public class Game implements Runnable {
     }
 
     private boolean createBoard() {
-        int numberOfTiles = Optional.of(this.numberOfTiles).orElse(100);
+        int numberOfTiles = this.numberOfTiles != null ? this.numberOfTiles : 100;
         this.board = new Board(numberOfTiles);
         Tile startTile = this.board.getStartTile();
         return this.players.stream().anyMatch((p) -> startTile.addPawnToTile(p.getPawn()));
