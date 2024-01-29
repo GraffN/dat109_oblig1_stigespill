@@ -17,17 +17,16 @@ public class Game implements Runnable {
     private Player winner;
 
 
-
-    private Game() {
-        this.gameStatus = GameStatus.NOT_STARTED;
+    public Game(final List<String> players) {
         this.players = new ArrayList<>();
         this.gameService = new GameService(this);
-    }
-
-    public Game(final List<String> players) {
-        this();
         this.addPlayers(players);
-        this.createBoard();
+        this.gameStatus = GameStatus.NOT_STARTED;
+        boolean createdBoard = this.createBoard();
+        if (!createdBoard) {
+            throw new RuntimeException("Failed to create board");
+        }
+        this.gameService.nextPlayer();
     }
 
 
@@ -35,10 +34,6 @@ public class Game implements Runnable {
         return this.players;
     }
 
-    private boolean addPlayer() {
-        PawnColor pawnColor = PawnColor.getNextPawnColor(players);
-        return players.add(new Player(this.gameService));
-    }
     public boolean addPlayer(final String name) {
         PawnColor pawnColor = PawnColor.getNextPawnColor(players);
         return players.add(new Player(this.gameService, name, pawnColor));
@@ -65,9 +60,9 @@ public class Game implements Runnable {
         return board;
     }
 
-    private void createBoard() {
+    private boolean createBoard() {
         this.board = new Board(100);
-        this.board.setPawns(this.players.stream().map(Player::getPawn).toList());
+        return this.board.setPawns(this.players.stream().map(Player::getPawn).toList());
     }
 
     public boolean setGameStatus(GameStatus status) {
@@ -82,6 +77,7 @@ public class Game implements Runnable {
         return this.gameStatus;
     }
     private void startGame() {
+        this.gameStatus = GameStatus.STARTED;
         this.gameService.run();
     }
 
@@ -101,6 +97,6 @@ public class Game implements Runnable {
 
     @Override
     public void run() {
-
+        this.startGame();
     }
 }

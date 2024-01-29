@@ -15,58 +15,77 @@ public class GameService implements Runnable {
     public GameService(final Game game) {
         this.game = game;
         this.playerOrder = new Stack<>();
-        Player initialPlayer = game.getPlayers().get(0);
-        this.setActivePlayer(initialPlayer);
         this.rollCount = 0;
         this.dice = new Dice();
-
         this.round = 1;
     }
 
-    private void setActivePlayer(final Player player) {
-        this.playerOrder.add(player);
-        this.activePlayer = player;
-    }
+    public boolean nextPlayer() {
+        boolean success;
+        synchronized (this.playerOrder) {
+            if (this.round == 1 && this.game.getPlayers() != null) {
+                this.activePlayer = this.game.getPlayers().get(0);
+                this.playerOrder.add(this.activePlayer);
+                this.playerOrder.notifyAll();
+                return this.activePlayer != null;
+            }
 
-    private void nextPlayer() {
-        if (this.round == 1) {
-            return;
+            List<Player> playerList = game.getPlayers();
+            int activePlayerIndex = playerList.indexOf(activePlayer);
+            int playerPlusOne = activePlayerIndex + 1;
+            int maxPlayerIndex = playerList.size();
+            int nextPlayerIndex = playerPlusOne % maxPlayerIndex;
+
+            System.out.println(playerPlusOne + " % " + maxPlayerIndex + " = " + nextPlayerIndex);
+            this.activePlayer = playerList.get(nextPlayerIndex);
+            success = this.playerOrder.add(this.activePlayer);
+            System.out.println("nextPlayer: " +  this.activePlayer.getPlayerName());
+            this.playerOrder.notify();
         }
-        List<Player> playerList = game.getPlayers();
-        int activePlayerIndex = playerList.indexOf(activePlayer);
-        int nextPlayerIndex = (activePlayerIndex + 1) % playerList.size();
-        this.activePlayer = playerList.get(nextPlayerIndex);
+        return success;
     }
 
     public Player getActivePlayer() {
         return activePlayer;
     }
 
-    public void rollDice() {
+    public boolean rollDice() {
         this.rollCount += 1;
         Board board = this.game.getBoard();
         int result;
+        boolean success;
         do {
             result = this.dice.roll();
+            System.out.printf("terning rullet: %d\n", result);
             boolean rolledSixThreeTimes = this.rollCount == 3 && result == 6;
             if (rolledSixThreeTimes || this.rollCount > 3) {
                 System.out.println("You have had too much luck, and RNG Jesus have struck you down");
                 Tile startTile = board.getTiles().get(0);
                 this.activePlayer.getPawn().place(startTile);
-                return;
+                success = true;
+            } else {
+                success = board.movePawn(activePlayer.getPawn(), result);
             }
-            board.movePawn(activePlayer.getPawn(), result);
-        } while (result == 6);
+        } while (success && result == 6);
+        if (!success) {
+            throw new RuntimeException("failed to move player");
+        }
+
         Tile roundEndTile = activePlayer.getPawn().getTile();
         if (board.isGoal(roundEndTile)) {
             boolean successfullySetWinner = this.game.setWinner(activePlayer);
             if (!successfullySetWinner) {
                 throw new RuntimeException("Failed to set winner");
             }
-            return;
+        } else {
+            System.out.println("REEEE");
+            success = this.nextPlayer();
         }
-        this.nextPlayer();
+        if (!success) {
+            throw new RuntimeException("Failed to set next player");
+        }
         this.round++;
+        return success;
     }
 
     public GameStatus getGameStatus() {
@@ -76,18 +95,17 @@ public class GameService implements Runnable {
     @Override
     public void run() {
         try {
-
-            this.game.setGameStatus(GameStatus.STARTED);
             GameStatus gameStatus = this.getGameStatus();
 
             while (gameStatus.equals(GameStatus.STARTED)) {
-                Player activePlayer = playerOrder.peek();
-                synchronized (playerOrder) {
+                gameStatus = this.getGameStatus();
+                Player activePlayer = this.playerOrder.peek();
+                synchronized (this.playerOrder) {
                     Player currentPlayer = this.activePlayer;
-
+                    currentPlayer.start();
                     while (activePlayer.equals(currentPlayer)) {
                         currentPlayer = this.activePlayer;
-                        this.wait();
+                        this.playerOrder.wait();
                     }
                 }
             }

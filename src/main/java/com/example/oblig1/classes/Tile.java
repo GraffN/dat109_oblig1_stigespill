@@ -12,6 +12,7 @@ public class Tile {
     private TileItem tileItem;
 
     public Tile(final int index) {
+        this.pawnsOnTile = new ArrayList<>();
         this.id = nextId;
         this.index = index;
         nextId++;
@@ -33,20 +34,30 @@ public class Tile {
         this.pawnsOnTile = pawnsOnTile;
     }
     public boolean removePawnFromTile(final Pawn pawn) {
+        if (!this.pawnsOnTile.contains(pawn)) {
+            return true;
+        }
         return this.pawnsOnTile.remove(pawn);
     }
     public boolean addPawnToTile(final Pawn pawn) {
+        if (this.pawnsOnTile.contains(pawn)) {
+            return false;
+        }
         pawn.place(this);
         return this.pawnsOnTile.add(pawn);
     }
 
-    public void onPlace(final Pawn pawn) {
-        Tile end = this.tileItem.getEndTile();
-        if (end == null) {
-            return;
+    public boolean onPlace(final Pawn pawn) {
+        if (this.tileItem == null) {
+            return true;
         }
 
-        pawn.place(end);
+        Tile end = this.tileItem.getEndTile();
+        if (end == null) {
+            return true;
+        }
+
+        return pawn.place(end);
     }
 
     public TileItem getTileItem() {

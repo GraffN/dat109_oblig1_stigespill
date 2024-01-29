@@ -36,14 +36,8 @@ public class Pawn extends Thread {
         return player;
     }
 
-    public void place(final Tile tile) {
-        if (this.tile != null) {
-            boolean removed = this.tile.removePawnFromTile(this);
-            if (!removed) {
-                throw new RuntimeException("Failed to remove pawn from old tile");
-            }
-        }
+    public boolean place(final Tile tile) {
         this.tile = tile;
-        tile.onPlace(this);
+        return tile.onPlace(this);
     }
 }

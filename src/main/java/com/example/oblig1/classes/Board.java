@@ -57,34 +57,51 @@ public class Board {
         if (this.pawns.size() > 4) {
             return false;
         }
-
+        Tile startTile = this.tiles.get(0);
+        pawn.place(startTile);
         return this.pawns.add(pawn);
     }
 
     public boolean setPawns(final List<Pawn> pawns) {
         List<Pawn> prevList = this.pawns;
-        boolean valid = pawns.stream().map(this::addPawn).anyMatch((added) -> !added);
+        boolean valid = pawns.stream().allMatch(this::addPawn);
         if (!valid) {
             this.pawns = prevList;
         }
         return valid;
     }
 
-    public void movePawn(final Pawn pawn, final int roll) {
+    public boolean movePawn(final Pawn pawn, final int roll) {
         Tile goal = tiles.get(tiles.size() -1);
         Tile currentTile = pawn.getTile();
         int currentIndex = this.tiles.indexOf(currentTile);
         int moves = roll;
+        boolean success = true;
         for (int i = roll; i > 0; i--) {
-            moves--;
-            int direction = roll - moves;
-            System.out.println();
-            Tile nextTile = this.tiles.get(currentIndex + direction);
-            if (nextTile.equals(goal)) {
-                moves = 0;
+            try {
+                moves--;
+                int direction = roll - moves;
+                System.out.println();
+                Tile nextTile = this.tiles.get(currentIndex + direction);
+                if (nextTile.equals(goal)) {
+                    moves = 0;
+                }
+                success = pawn.place(nextTile);
+            } catch (Exception e) {
+                e.printStackTrace();
+                success = false;
             }
-            pawn.place(nextTile);
         }
+        if (!success) {
+            return success;
+        }
+        success = currentTile.removePawnFromTile(pawn);
+        if (!success) {
+            return success;
+        }
+        currentTile = pawn.getTile();
+        success = currentTile.addPawnToTile(pawn);
+        return success;
     }
 
     public boolean isGoal(final Tile tile) {

@@ -10,23 +10,25 @@ public class BoardUtil {
     public static boolean placeTileItems(final List<Tile> tiles) {
         try {
             Random random = new Random();
+            int offset = 3;
+            int margin = 2;
             int base = tiles.size() / 8;
-            int slidesAndLaddersCount = random.nextInt(base - 3, base + 3);
+            int slidesAndLaddersCount = random.nextInt(base - offset, base + offset);
             for (int i = 0; i < slidesAndLaddersCount; i++) {
-                boolean isLadder = random.nextInt(2) == 0;
-                Tile origin = tiles.get(random.nextInt(0, tiles.size() - 1));
+                boolean isLadder = random.nextInt(margin) == 0;
+                Tile origin = tiles.get(random.nextInt(offset, tiles.size() - offset - margin));
                 while (origin.getTileItem() != null) {
-                    origin = tiles.get(random.nextInt(0, tiles.size() -1));
+                    origin = tiles.get(random.nextInt(offset, tiles.size() - offset - margin));
                 }
                 int slideAndLadderBounds = 9;
                 if (isLadder) {
-                    int minEndIndex = origin.getIndex() + 3;
-                    Tile end = tiles.get(random.nextInt(minEndIndex, minEndIndex + slideAndLadderBounds));
+                    int minEndIndex = origin.getIndex() + offset;
+                    Tile end = tiles.get(random.nextInt(minEndIndex, Math.min(tiles.size() - margin, minEndIndex + slideAndLadderBounds)));
                     Ladder ladder = new Ladder(origin, end);
                     origin.setTileItem(ladder);
                 } else {
-                    int maxEndIndex = origin.getIndex() + 3;
-                    Tile end = tiles.get(random.nextInt(maxEndIndex - slideAndLadderBounds, maxEndIndex));
+                    int maxEndIndex = origin.getIndex() - offset;
+                    Tile end = tiles.get(random.nextInt(Math.max(margin - 1, maxEndIndex - slideAndLadderBounds), maxEndIndex));
                     Slide slide = new Slide(origin, end);
                     origin.setTileItem(slide);
                 }

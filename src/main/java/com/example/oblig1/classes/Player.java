@@ -4,13 +4,15 @@ import com.example.oblig1.interfaces.GameStatus;
 import com.example.oblig1.interfaces.PawnColor;
 import com.example.oblig1.logic.GameService;
 
+import java.util.Scanner;
+
 public class Player extends Thread {
     private static int nextId = 0;
     private final int playerId;
     private String playerName;
     private Pawn pawn;
     private final GameService gameService;
-    public Player(GameService gameService) {
+    private Player(GameService gameService) {
         this.playerId = nextId;
         nextId++;
         this.gameService = gameService;
@@ -42,19 +44,33 @@ public class Player extends Thread {
     }
 
     private void rollDice() {
-        this.gameService.rollDice();
+        Scanner scanner = new Scanner(System.in);
+        System.out.printf("%s tur, trykk enter for rulle terning\n", this.playerName);
+        System.out.printf("%s: ", this.playerName);
+        scanner.nextLine();
+        boolean success = this.gameService.rollDice();
+        if (!success) {
+            throw new RuntimeException("Failed to roll dice");
+        }
     }
 
     @Override
     public void run() {
-        synchronized (this.gameService) {
+        final GameService gameService = this.gameService;
+
+        synchronized (gameService) {
             try {
-                while (this.gameService.getGameStatus().equals(GameStatus.STARTED)) {
-                    if (!this.gameService.getActivePlayer().equals(this)) {
-                        this.wait();
+                GameStatus gameStatus = gameService.getGameStatus();
+
+                while (gameStatus.equals(GameStatus.STARTED)) {
+                    gameStatus = gameService.getGameStatus();
+                    Player activePlayer = gameService.getActivePlayer();
+                    System.out.println("activePlayer: " + activePlayer.playerName);
+                    if (!activePlayer.equals(this)) {
+                        gameService.wait();
                     } else {
                         this.rollDice();
-                        this.gameService.notify();
+                        gameService.notifyAll();
                     }
                 }
 

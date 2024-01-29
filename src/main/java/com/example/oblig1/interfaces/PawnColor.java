@@ -28,7 +28,7 @@ public enum PawnColor {
     }
 
     public static PawnColor getNextPawnColor(List<Player> players) {
-        if (players.size() > 0) {
+        if (players != null && players.size() > 0) {
             return Arrays
                     .stream(PawnColor.values())
                     .filter((c) -> players.stream().anyMatch((p) -> !p.getPawn().getColor().equals(c)))
