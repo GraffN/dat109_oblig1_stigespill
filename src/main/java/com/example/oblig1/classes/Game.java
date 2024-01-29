@@ -2,24 +2,22 @@ package com.example.oblig1.classes;
 
 import com.example.oblig1.interfaces.GameStatus;
 import com.example.oblig1.interfaces.PawnColor;
-import com.example.oblig1.logic.GameService;
+import com.example.oblig1.services.GameService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Game implements Runnable {
     private List<Player> players;
     private Board board;
 
     private GameStatus gameStatus;
-
     private final GameService gameService;
     private Player winner;
-
-
+    private Integer numberOfTiles;
 
     private Game() {
-        this.gameStatus = GameStatus.NOT_STARTED;
         this.players = new ArrayList<>();
         this.gameService = new GameService(this);
     }
@@ -30,14 +28,16 @@ public class Game implements Runnable {
         this.createBoard();
     }
 
+    public Game(final List<String> players, final Integer numberOfTiles) {
+        this();
+        this.numberOfTiles = numberOfTiles;
+        this.addPlayers(players);
+        this.createBoard();
+    }
+
 
     public List<Player> getPlayers() {
         return this.players;
-    }
-
-    private boolean addPlayer() {
-        PawnColor pawnColor = PawnColor.getNextPawnColor(players);
-        return players.add(new Player(this.gameService));
     }
     public boolean addPlayer(final String name) {
         PawnColor pawnColor = PawnColor.getNextPawnColor(players);
@@ -66,8 +66,10 @@ public class Game implements Runnable {
     }
 
     private void createBoard() {
-        this.board = new Board(100);
-        this.board.setPawns(this.players.stream().map(Player::getPawn).toList());
+        int numberOfTiles = Optional.of(this.numberOfTiles).orElse(100);
+        this.board = new Board(numberOfTiles);
+        Tile startTile = this.board.getStartTile();
+        this.players.forEach((p) -> startTile.addPawnToTile(p.getPawn()));
     }
 
     public boolean setGameStatus(GameStatus status) {

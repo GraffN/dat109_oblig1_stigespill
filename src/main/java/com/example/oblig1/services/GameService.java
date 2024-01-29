@@ -1,4 +1,4 @@
-package com.example.oblig1.logic;
+package com.example.oblig1.services;
 
 import com.example.oblig1.classes.*;
 import com.example.oblig1.interfaces.GameStatus;
