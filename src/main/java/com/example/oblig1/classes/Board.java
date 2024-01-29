@@ -1,18 +1,15 @@
 package com.example.oblig1.classes;
-import com.example.oblig1.logic.BoardUtil;
+import com.example.oblig1.utils.BoardUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Board {
+public class Board extends Thread {
     private static int nextId = 0;
-    private final int id;
-    private List<Pawn> pawns;
+    private final int tileId;
     private List<Tile> tiles;
-
     public Board() {
-        this.id = nextId;
+        this.tileId = nextId;
         nextId++;
-        this.pawns = new ArrayList<>();
         this.tiles = new ArrayList<>();
     }
     public Board(final int tileCount) {
@@ -25,12 +22,8 @@ public class Board {
         }
     }
 
-    public int getId() {
-        return this.id;
-    }
-
-    public List<Pawn> getPawns() {
-        return this.pawns;
+    public int getTileId() {
+        return this.tileId;
     }
 
     public List<Tile> getTiles() {
@@ -53,21 +46,8 @@ public class Board {
         return true;
     }
 
-    public boolean addPawn(final Pawn pawn) {
-        if (this.pawns.size() > 4) {
-            return false;
-        }
-
-        return this.pawns.add(pawn);
-    }
-
-    public boolean setPawns(final List<Pawn> pawns) {
-        List<Pawn> prevList = this.pawns;
-        boolean valid = pawns.stream().map(this::addPawn).anyMatch((added) -> !added);
-        if (!valid) {
-            this.pawns = prevList;
-        }
-        return valid;
+    public Tile getStartTile() {
+        return this.tiles.get(0);
     }
 
     public void movePawn(final Pawn pawn, final int roll) {
