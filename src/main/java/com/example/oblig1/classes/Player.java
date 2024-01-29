@@ -56,21 +56,20 @@ public class Player extends Thread {
 
     @Override
     public void run() {
-        final GameService gameService = this.gameService;
 
-        synchronized (gameService) {
+        synchronized (this.gameService) {
             try {
-                GameStatus gameStatus = gameService.getGameStatus();
+                GameStatus gameStatus = this.gameService.getGameStatus();
 
                 while (gameStatus.equals(GameStatus.STARTED)) {
-                    gameStatus = gameService.getGameStatus();
-                    Player activePlayer = gameService.getActivePlayer();
+                    gameStatus = this.gameService.getGameStatus();
+                    Player activePlayer = this.gameService.getActivePlayer();
                     System.out.println("activePlayer: " + activePlayer.playerName);
                     if (!activePlayer.equals(this)) {
-                        gameService.wait();
+                        this.gameService.wait();
                     } else {
                         this.rollDice();
-                        gameService.notifyAll();
+                        this.gameService.notifyAll();
                     }
                 }
 

@@ -50,24 +50,6 @@ public class Board extends Thread {
         return this.tiles.get(0);
     }
 
-    public boolean addPawn(final Pawn pawn) {
-        if (this.pawns.size() > 4) {
-            return false;
-        }
-        Tile startTile = this.tiles.get(0);
-        pawn.place(startTile);
-        return this.pawns.add(pawn);
-    }
-
-    public boolean setPawns(final List<Pawn> pawns) {
-        List<Pawn> prevList = this.pawns;
-        boolean valid = pawns.stream().allMatch(this::addPawn);
-        if (!valid) {
-            this.pawns = prevList;
-        }
-        return valid;
-    }
-
     public boolean movePawn(final Pawn pawn, final int roll) {
         Tile goal = tiles.get(tiles.size() -1);
         Tile currentTile = pawn.getTile();
@@ -78,8 +60,9 @@ public class Board extends Thread {
             try {
                 moves--;
                 int direction = roll - moves;
-                System.out.println();
                 Tile nextTile = this.tiles.get(currentIndex + direction);
+                System.out.printf("flytter %s til rute %d\n", pawn.getColor().name(), nextTile.getIndex());
+
                 if (nextTile.equals(goal)) {
                     moves = 0;
                 }

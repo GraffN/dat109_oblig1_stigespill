@@ -15,7 +15,6 @@ public class Tile {
         this.pawnsOnTile = new ArrayList<>();
         this.id = nextId;
         this.index = index;
-        this.pawnsOnTile = new ArrayList<>();
         nextId++;
     }
 
