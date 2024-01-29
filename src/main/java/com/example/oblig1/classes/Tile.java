@@ -8,13 +8,14 @@ public class Tile {
     private static int nextId = 0;
     private final int id;
     private final int index;
-    private ArrayList<Pawn> pawnsOnTile;
+    private final ArrayList<Pawn> pawnsOnTile;
     private TileItem tileItem;
 
     public Tile(final int index) {
         this.pawnsOnTile = new ArrayList<>();
         this.id = nextId;
         this.index = index;
+        this.pawnsOnTile = new ArrayList<>();
         nextId++;
     }
 
@@ -30,9 +31,6 @@ public class Tile {
         return this.pawnsOnTile;
     }
 
-    public void setPawnsOnTile(final ArrayList<Pawn> pawnsOnTile) {
-        this.pawnsOnTile = pawnsOnTile;
-    }
     public boolean removePawnFromTile(final Pawn pawn) {
         if (!this.pawnsOnTile.contains(pawn)) {
             return true;

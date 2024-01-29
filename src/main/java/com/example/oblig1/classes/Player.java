@@ -2,7 +2,7 @@ package com.example.oblig1.classes;
 
 import com.example.oblig1.interfaces.GameStatus;
 import com.example.oblig1.interfaces.PawnColor;
-import com.example.oblig1.logic.GameService;
+import com.example.oblig1.services.GameService;
 
 import java.util.Scanner;
 

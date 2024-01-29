@@ -2,19 +2,20 @@ package com.example.oblig1.classes;
 
 import com.example.oblig1.interfaces.GameStatus;
 import com.example.oblig1.interfaces.PawnColor;
-import com.example.oblig1.logic.GameService;
+import com.example.oblig1.services.GameService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Game implements Runnable {
     private List<Player> players;
     private Board board;
 
     private GameStatus gameStatus;
-
     private final GameService gameService;
     private Player winner;
+    private Integer numberOfTiles;
 
 
     public Game(final List<String> players) {
@@ -27,6 +28,11 @@ public class Game implements Runnable {
             throw new RuntimeException("Failed to create board");
         }
         this.gameService.nextPlayer();
+    }
+
+    public Game(final List<String> players, final Integer numberOfTiles) {
+        this(players);
+        this.numberOfTiles = numberOfTiles;
     }
 
 
@@ -61,8 +67,10 @@ public class Game implements Runnable {
     }
 
     private boolean createBoard() {
-        this.board = new Board(100);
-        return this.board.setPawns(this.players.stream().map(Player::getPawn).toList());
+        int numberOfTiles = Optional.of(this.numberOfTiles).orElse(100);
+        this.board = new Board(numberOfTiles);
+        Tile startTile = this.board.getStartTile();
+        return this.players.stream().anyMatch((p) -> startTile.addPawnToTile(p.getPawn()));
     }
 
     public boolean setGameStatus(GameStatus status) {

@@ -1,4 +1,4 @@
-package com.example.oblig1.logic;
+package com.example.oblig1.utils;
 import com.example.oblig1.classes.Ladder;
 import com.example.oblig1.classes.Slide;
 import com.example.oblig1.classes.Tile;
