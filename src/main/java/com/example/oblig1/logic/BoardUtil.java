@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 public class BoardUtil {
-    public static boolean placeTileItems(List<Tile> tiles) {
+    public static boolean placeTileItems(final List<Tile> tiles) {
         try {
             Random random = new Random();
             int base = tiles.size() / 8;

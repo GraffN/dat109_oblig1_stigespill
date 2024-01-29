@@ -1,4 +1,6 @@
-package com.example.oblig1.classes;
+package com.example.oblig1.interfaces;
+
+import com.example.oblig1.classes.Player;
 
 import java.util.Arrays;
 import java.util.List;
