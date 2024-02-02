@@ -6,25 +6,19 @@ import com.example.oblig1.services.GameService;
 
 import java.util.Scanner;
 
-public class Player extends Thread {
+public class Player implements Runnable {
     private static int nextId = 0;
     private final int playerId;
     private String playerName;
     private Pawn pawn;
     private final GameService gameService;
-    private Player(GameService gameService) {
+
+    public Player(GameService gameService, String playerName, PawnColor color) {
         this.playerId = nextId;
         nextId++;
         this.gameService = gameService;
-    }
-    public Player(GameService gameService, String playerName) {
-        this(gameService);
-        this.pawn = new Pawn(this);
         this.playerName = playerName;
-    }
-    public Player(GameService gameService, String playerName, PawnColor pawnColor) {
-        this(gameService, playerName);
-        this.pawn = new Pawn(this, pawnColor);
+        this.pawn = new Pawn(this, color);
     }
 
     public int getPlayerId() {
@@ -43,39 +37,55 @@ public class Player extends Thread {
         return pawn;
     }
 
-    private void rollDice() {
+    public void rollDice() {
         Scanner scanner = new Scanner(System.in);
-        System.out.printf("%s tur, trykk enter for rulle terning\n", this.playerName);
+        System.out.printf("%s's turn, press enter to roll the dice\n", this.playerName);
         System.out.printf("%s: ", this.playerName);
         scanner.nextLine();
-        boolean success = this.gameService.rollDice();
-        if (!success) {
-            throw new RuntimeException("Failed to roll dice");
+
+        // Notify GameService that it's the player's turn
+        this.gameService.notifyPlayerTurn(this);
+        this.gameService.rollDice(this);
+
+        // Wait until the GameService finishes processing the dice result and player's move
+        synchronized (this) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void notifyTurnEnd() {
+        synchronized (this) {
+            this.notify(); // Notify waiting GameService thread
         }
     }
 
     @Override
     public void run() {
-
-        synchronized (this.gameService) {
-            try {
-                GameStatus gameStatus = this.gameService.getGameStatus();
-
-                while (gameStatus.equals(GameStatus.STARTED)) {
-                    gameStatus = this.gameService.getGameStatus();
-                    Player activePlayer = this.gameService.getActivePlayer();
-                    System.out.println("activePlayer: " + activePlayer.playerName);
-                    if (!activePlayer.equals(this)) {
-                        this.gameService.wait();
-                    } else {
-                        this.rollDice();
-                        this.gameService.notifyAll();
+        while (!gameService.getGameStatus().equals(GameStatus.STARTED)) {
+            synchronized (gameService) {
+                while (!gameService.getActivePlayer().equals(this)) {
+                    try {
+                        gameService.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
 
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                System.out.println(this.playerName + "'s turn");
+                this.rollDice();
+                System.out.println();
+
+                gameService.notifyAll();
             }
         }
+    }
+
+    public void startPlayerThread() {
+        new Thread(this).start();
     }
 }

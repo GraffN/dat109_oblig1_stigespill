@@ -1,4 +1,5 @@
 package com.example.oblig1.utils;
+import com.example.oblig1.Main;
 import com.example.oblig1.classes.Ladder;
 import com.example.oblig1.classes.Slide;
 import com.example.oblig1.classes.Tile;
@@ -15,22 +16,25 @@ public class BoardUtil {
             int base = tiles.size() / 8;
             int slidesAndLaddersCount = random.nextInt(base - offset, base + offset);
             for (int i = 0; i < slidesAndLaddersCount; i++) {
-                boolean isLadder = random.nextInt(margin) == 0;
-                Tile origin = tiles.get(random.nextInt(offset, tiles.size() - offset - margin));
-                while (origin.getTileItem() != null) {
-                    origin = tiles.get(random.nextInt(offset, tiles.size() - offset - margin));
+                boolean isLadder = random.nextInt(0, 1) == 0;
+                Tile originTile = tiles.get(random.nextInt(offset, tiles.size() - offset - margin));
+                while (originTile.getTileItem() != null) {
+                    originTile = tiles.get(random.nextInt(offset, tiles.size() - offset - margin));
                 }
-                int slideAndLadderBounds = 9;
+                int originIndex = originTile.getIndex();
+                int offsetLimit = 9;
                 if (isLadder) {
-                    int minEndIndex = origin.getIndex() + offset;
-                    Tile end = tiles.get(random.nextInt(minEndIndex, Math.min(tiles.size() - margin, minEndIndex + slideAndLadderBounds)));
-                    Ladder ladder = new Ladder(origin, end);
-                    origin.setTileItem(ladder);
+                    int endIndex = random.nextInt(originIndex + margin, originIndex + offsetLimit);
+                    endIndex = Math.min(tiles.size() - 1, endIndex);
+                    Tile endTile = tiles.get(endIndex);
+                    Ladder ladder = new Ladder(originTile, endTile);
+                    originTile.setTileItem(ladder);
                 } else {
-                    int maxEndIndex = origin.getIndex() - offset;
-                    Tile end = tiles.get(random.nextInt(Math.max(margin - 1, maxEndIndex - slideAndLadderBounds), maxEndIndex));
-                    Slide slide = new Slide(origin, end);
-                    origin.setTileItem(slide);
+                    int endIndex = random.nextInt(originIndex - offsetLimit, originIndex - margin);
+                    endIndex = Math.max(endIndex, margin);
+                    Tile endTile = tiles.get(endIndex);
+                    Slide slide = new Slide(originTile, endTile);
+                    originTile.setTileItem(slide);
                 }
             }
         } catch (Exception e) {

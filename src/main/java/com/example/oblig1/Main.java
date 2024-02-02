@@ -1,6 +1,7 @@
 package com.example.oblig1;
 
 import com.example.oblig1.classes.Game;
+import com.example.oblig1.classes.Player;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,9 +12,11 @@ public class Main {
     public static void main(String[] args) {
         List<String> players = promptUserForPlayers();
 
-        final Game game = new Game(players);
-
-        game.run();
+        Game game = new Game(players);
+        for (Player player : game.getPlayers()) {
+            player.startPlayerThread();
+        }
+        game.start(); // Start the game's thread
     }
 
     private static List<String> promptUserForPlayers() {

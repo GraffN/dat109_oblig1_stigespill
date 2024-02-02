@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Game implements Runnable {
+public class Game extends Thread {
     private List<Player> players;
     private Board board;
 
@@ -27,7 +27,8 @@ public class Game implements Runnable {
         if (!createdBoard) {
             throw new RuntimeException("Failed to create board");
         }
-        this.gameService.nextPlayer();
+        Player startingPlayer = this.players.get(0);
+        this.gameService.nextPlayer(startingPlayer);
     }
 
     public Game(final List<String> players, final Integer numberOfTiles) {
@@ -43,12 +44,6 @@ public class Game implements Runnable {
     public boolean addPlayer(final String name) {
         PawnColor pawnColor = PawnColor.getNextPawnColor(players);
         return players.add(new Player(this.gameService, name, pawnColor));
-    }
-    public boolean addPlayer(final String name, final PawnColor color) {
-        if (players.stream().anyMatch((p) -> p.getPawn().getColor() == color)) {
-            return false;
-        }
-        return this.players.add(new Player(this.gameService, name, color));
     }
 
     public boolean addPlayers(final List<String> names) {
